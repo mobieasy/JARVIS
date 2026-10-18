@@ -34,6 +34,13 @@ class InvoiceTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.report('A,2026-02-30,10,0,INR\n')
 
+    def test_invalid_decimal_inputs_include_row_context(self):
+        for column in ('amount', 'paid'):
+            for value in ('not-a-number', '1e100', '1e999999999999999999999',
+                          'NaN', 'sNaN', 'Infinity', '-Infinity'):
+                amount, paid = (value, '0') if column == 'amount' else ('10', value)
+                with self.subTest(column=column, value=value), self.assertRaisesRegex(ValueError, '^CSV row 2:'):
+                    self.report(f'A,2026-10-17,{amount},{paid},INR\n')
 
 
 if __name__ == '__main__':
