@@ -1,0 +1,247 @@
+{
+  "gateway": {
+    "mode": "local",
+    "bind": "loopback",
+    "port": 18789,
+    "publicOrigin": "http://127.0.0.1:18789",
+    "auth": {
+      "mode": "token",
+      "allowTailscale": false
+    },
+    "trustedProxies": [],
+    "controlUi": {
+      "enabled": true,
+      "allowedOrigins": [
+        "http://127.0.0.1:18789"
+      ]
+    },
+    "terminal": {
+      "enabled": false
+    },
+    "allowRealIpFallback": false
+  },
+  "agents": {
+    "defaults": {
+      "workspace": "/absolute/path/to/private-workspace",
+      "userTimezone": "UTC",
+      "model": {
+        "primary": "openrouter/openai/gpt-6-luna",
+        "fallbacks": []
+      },
+      "utilityModel": "openrouter/openai/gpt-6-luna",
+      "models": {
+        "openrouter/openai/gpt-6-luna": {
+          "alias": "luna",
+          "params": {
+            "maxTokens": 4096
+          }
+        },
+        "openrouter/openai/gpt-6-sol": {
+          "alias": "sol6",
+          "params": {
+            "maxTokens": 4096
+          }
+        },
+        "openrouter/openai/gpt-6.1-sol": {
+          "alias": "sol",
+          "params": {
+            "maxTokens": 4096
+          }
+        },
+        "openrouter/google/gemini-4-argon": {
+          "alias": "argon",
+          "params": {
+            "maxTokens": 4096
+          }
+        },
+        "openrouter/anthropic/claude-sonnet-5.5": {
+          "alias": "sonnet",
+          "params": {
+            "maxTokens": 4096
+          }
+        },
+        "openrouter/anthropic/claude-opus-5.5": {
+          "alias": "opus",
+          "params": {
+            "maxTokens": 4096
+          }
+        },
+        "openrouter/anthropic/claude-fable-5.1": {
+          "alias": "fable",
+          "params": {
+            "maxTokens": 4096
+          }
+        }
+      },
+      "modelPolicy": {
+        "allow": [
+          "openrouter/openai/gpt-6-luna",
+          "openrouter/openai/gpt-6-sol",
+          "openrouter/openai/gpt-6.1-sol",
+          "openrouter/google/gemini-4-argon",
+          "openrouter/anthropic/claude-sonnet-5.5",
+          "openrouter/anthropic/claude-opus-5.5",
+          "openrouter/anthropic/claude-fable-5.1"
+        ]
+      },
+      "thinkingDefault": "low",
+      "elevatedDefault": "off",
+      "maxConcurrent": 1,
+      "timeoutSeconds": 600,
+      "heartbeat": {
+        "every": "0m"
+      },
+      "sandbox": {
+        "mode": "all",
+        "backend": "docker",
+        "scope": "agent",
+        "workspaceAccess": "rw",
+        "docker": {
+          "image": "jarvis-sandbox:dev",
+          "containerPrefix": "jarvis-sbx-",
+          "readOnlyRoot": true,
+          "network": "bridge",
+          "user": "1000:1000",
+          "capDrop": [
+            "ALL"
+          ],
+          "memory": "1g",
+          "memorySwap": "1536m",
+          "cpus": 0.8,
+          "pidsLimit": 128
+        }
+      }
+    },
+    "entries": {
+      "jarvis": {
+        "name": "JARVIS",
+        "identity": {
+          "name": "JARVIS",
+          "emoji": "\ud83d\udd35"
+        }
+      }
+    }
+  },
+  "tools": {
+    "profile": "full",
+    "deny": [
+      "gateway",
+      "nodes",
+      "computer",
+      "terminal",
+      "plugins",
+      "openclaw",
+      "sessions_spawn",
+      "subagents",
+      "image_generate",
+      "video_generate",
+      "music_generate",
+      "tts",
+      "workboard_dispatch"
+    ],
+    "elevated": {
+      "enabled": false
+    },
+    "loopDetection": {
+      "enabled": true
+    },
+    "exec": {
+      "timeoutSeconds": 120,
+      "backgroundMs": 10000
+    },
+    "web": {
+      "search": {
+        "enabled": false,
+        "provider": "duckduckgo",
+        "maxResults": 5
+      },
+      "fetch": {
+        "enabled": true,
+        "maxChars": 18000,
+        "timeoutSeconds": 30
+      }
+    },
+    "sandbox": {
+      "tools": {
+        "allow": [
+          "group:fs",
+          "group:runtime",
+          "group:memory",
+          "group:web",
+          "session_status",
+          "automations",
+          "ask_user",
+          "progress_card",
+          "view_image",
+          "pdf",
+          "workboard_list",
+          "workboard_read",
+          "workboard_create",
+          "workboard_claim",
+          "workboard_heartbeat",
+          "workboard_release",
+          "workboard_complete",
+          "workboard_block",
+          "workboard_comment",
+          "workboard_proof",
+          "workboard_move",
+          "workboard_stats",
+          "workboard_boards"
+        ],
+        "deny": [
+          "gateway",
+          "nodes",
+          "browser",
+          "canvas",
+          "message"
+        ]
+      }
+    },
+    "alsoAllow": [
+      "workboard_list",
+      "workboard_read",
+      "workboard_create",
+      "workboard_claim",
+      "workboard_heartbeat",
+      "workboard_release",
+      "workboard_complete",
+      "workboard_block",
+      "workboard_comment",
+      "workboard_proof",
+      "workboard_move",
+      "workboard_stats",
+      "workboard_boards"
+    ]
+  },
+  "plugins": {
+    "entries": {
+      "workboard": {
+        "enabled": true
+      },
+      "memory-core": {
+        "config": {
+          "dreaming": {
+            "enabled": false
+          }
+        }
+      }
+    }
+  },
+  "ui": {
+    "seamColor": "#38bdf8",
+    "prefs": {
+      "theme": "dash",
+      "themeMode": "dark",
+      "locale": "en",
+      "chatShowThinking": false,
+      "chatShowToolCalls": true
+    }
+  },
+  "skills": {
+    "workshop": {
+      "autonomous": {
+        "mode": "off"
+      }
+    }
+  }
+}

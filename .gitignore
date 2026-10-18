@@ -1,0 +1,17 @@
+node_modules/
+.local/
+.npm/
+.secrets/
+.ssh/
+.codex/
+.env
+.env.*
+!.env.example
+*.db
+*.db-*
+*.sqlite*
+__pycache__/
+*.pyc
+config/openclaw.local.json
+workspace/
+backups/

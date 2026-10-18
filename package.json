@@ -1,0 +1,11 @@
+{
+  "name": "jarvis-runtime",
+  "private": true,
+  "dependencies": { "openclaw": "2026.10.4" },
+  "allowScripts": {
+    "openclaw": true,
+    "esbuild": true,
+    "koffi": true,
+    "protobufjs": true
+  }
+}
