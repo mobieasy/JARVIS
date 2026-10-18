@@ -13,10 +13,10 @@ from pathlib import Path
 def money(value):
     try:
         result = Decimal(value)
+        if not result.is_finite() or result < 0 or result != result.quantize(Decimal('0.01')):
+            raise ValueError('Amounts must be nonnegative and have at most two decimal places')
     except InvalidOperation as exc:
         raise ValueError('Invalid amount') from exc
-    if not result.is_finite() or result < 0 or result != result.quantize(Decimal('0.01')):
-        raise ValueError('Amounts must be nonnegative and have at most two decimal places')
     return result
 
 
@@ -59,7 +59,7 @@ def reconcile(path, as_of):
 
 
 def render(report):
-    lines = ['# Invoice reconciliation', '', f"As of: {report['as_of']} Â· INR", '',
+    lines = ['# Invoice reconciliation', '', f"As of: {report['as_of']} · INR", '',
              'Source: supplied CSV; due dates before the report date count as overdue.', '',
              '| Measure | Amount |', '|---|---:|']
     for key in ('billed', 'received', 'outstanding', 'overdue'):
