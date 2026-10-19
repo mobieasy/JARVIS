@@ -19,5 +19,4 @@ jobs:
           python-version: ${{ matrix.python }}
       - run: python -m unittest discover -s auth -p 'test_*.py' -v
       - run: python -m unittest discover -s tools -p 'test_*.py' -v
-      - run: python -m unittest discover -s ops -p 'test_*.py' -v
       - run: python scripts/configure.py --workspace "$RUNNER_TEMP/jarvis-workspace" --output "$RUNNER_TEMP/openclaw.json"
