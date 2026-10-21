@@ -1,0 +1,22 @@
+# Review paths and rootless Docker access before installing as a USER unit.
+# Copy to ~/.config/systemd/user/jarvis.service after staging acceptance.
+[Unit]
+Description=JARVIS private OpenClaw assistant
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/JARVIS
+ExecStart=/usr/bin/python3 %h/JARVIS/scripts/jarvis.py --private-dir %h/jarvis-private start
+Restart=on-failure
+RestartSec=15
+TimeoutStopSec=90
+KillMode=control-group
+UMask=0077
+MemoryMax=2G
+TasksMax=256
+# Size these limits from actual host measurements. Do not apply to production blindly.
+
+[Install]
+WantedBy=default.target
