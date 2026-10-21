@@ -53,3 +53,7 @@ Fork the repository, work on a `feat/...`, `fix/...` or `docs/...` branch, and o
 Good first contributions include clearer setup docs, accessibility/mobile polish, provider adapters, stronger input-validation tests, and reproducible container compatibility diagnostics. Please discuss larger features in an issue first.
 
 MIT licensed. Built on OpenClaw, with gratitude to its maintainers and contributors. Independent from OpenAI and xAI; see [third-party notices](THIRD_PARTY_NOTICES.md).
+
+## Inspect an existing installation
+
+Use the manual [private VPS inspection workflow](docs/VPS-INSPECTION.md) to understand an existing CLI connection without changing login state. It requires owner-configured SSH secrets and uploads an encrypted report only.
