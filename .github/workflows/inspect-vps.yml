@@ -1,0 +1,66 @@
+name: Inspect VPS (private, read only)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: private-vps-inspection
+  cancel-in-progress: false
+jobs:
+  inspect:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: vps-inspection
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Read-only inspection and encrypted report
+        shell: bash
+        env:
+          VPS_SSH_HOST: ${{ secrets.VPS_SSH_HOST }}
+          VPS_SSH_PORT: ${{ secrets.VPS_SSH_PORT }}
+          VPS_SSH_USER: ${{ secrets.VPS_SSH_USER }}
+          VPS_SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          VPS_SSH_KNOWN_HOSTS: ${{ secrets.VPS_SSH_KNOWN_HOSTS }}
+          VPS_REPORT_RECIPIENT: ${{ vars.VPS_REPORT_RECIPIENT }}
+        run: |
+          set -euo pipefail
+          umask 077
+          : "${VPS_SSH_HOST:?Missing VPS_SSH_HOST}"
+          : "${VPS_SSH_USER:?Missing VPS_SSH_USER}"
+          : "${VPS_SSH_PRIVATE_KEY:?Missing VPS_SSH_PRIVATE_KEY}"
+          : "${VPS_SSH_KNOWN_HOSTS:?Missing VPS_SSH_KNOWN_HOSTS}"
+          : "${VPS_REPORT_RECIPIENT:?Missing VPS_REPORT_RECIPIENT}"
+          VPS_SSH_PORT="${VPS_SSH_PORT:-22}"
+          [[ "$VPS_SSH_HOST" =~ ^[a-zA-Z0-9][a-zA-Z0-9.-]{0,252}$ ]] || exit 1
+          [[ "$VPS_SSH_USER" =~ ^[a-z_][a-z0-9_-]{0,31}$ ]] || exit 1
+          [[ "$VPS_SSH_PORT" =~ ^[0-9]{1,5}$ ]] || exit 1
+          (( 10#$VPS_SSH_PORT >= 1 && 10#$VPS_SSH_PORT <= 65535 )) || exit 1
+          task_key="$RUNNER_TEMP/inspection-ssh-key"
+          known_hosts="$RUNNER_TEMP/inspection-known-hosts"
+          ssh_errors="$RUNNER_TEMP/inspection-ssh-errors"
+          trap 'rm -f "$task_key" "$known_hosts" "$ssh_errors"' EXIT
+          printf '%s\n' "$VPS_SSH_PRIVATE_KEY" > "$task_key"
+          printf '%s\n' "$VPS_SSH_KNOWN_HOSTS" > "$known_hosts"
+          # Secret exists only in the SSH step's key file; the remote collector
+          # and report sealer do not receive the SSH key environment variable.
+          unset VPS_SSH_PRIVATE_KEY VPS_SSH_KNOWN_HOSTS
+          if ! timeout 120 ssh -T -i "$task_key" -p "$VPS_SSH_PORT" \
+            -o BatchMode=yes -o IdentitiesOnly=yes -o ConnectTimeout=15 \
+            -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$known_hosts" \
+            -o ClearAllForwardings=yes -o ServerAliveInterval=10 -o ServerAliveCountMax=3 \
+            "$VPS_SSH_USER@$VPS_SSH_HOST" '/usr/bin/python3 -I -B -' \
+            < ops/inspect_vps.py 2> "$ssh_errors" \
+            | node ops/report_crypto.mjs seal > "$RUNNER_TEMP/vps-inspection.sealed.json"; then
+            rm -f "$RUNNER_TEMP/vps-inspection.sealed.json"
+            echo 'Inspection failed: check SSH reachability, supplied key, verified host key, and Python 3. No raw SSH output was published.' >&2
+            exit 1
+          fi
+          echo 'Read-only collection completed; only an encrypted report will be retained.'
+      - name: Save encrypted report only
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: vps-inspection-encrypted
+          path: ${{ runner.temp }}/vps-inspection.sealed.json
+          if-no-files-found: error
+          retention-days: 3
