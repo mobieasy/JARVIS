@@ -19,4 +19,24 @@ jobs:
           python-version: ${{ matrix.python }}
       - run: python -m unittest discover -s auth -p 'test_*.py' -v
       - run: python -m unittest discover -s tools -p 'test_*.py' -v
+      - run: python -m unittest discover -s ops -p 'test_*.py' -v
+      - run: python -m unittest discover -s scripts -p 'test_*.py' -v
       - run: python scripts/configure.py --workspace "$RUNNER_TEMP/jarvis-workspace" --output "$RUNNER_TEMP/openclaw.json"
+  subscription-config:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24.19.0'
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: python3 scripts/jarvis.py --private-dir "$RUNNER_TEMP/jarvis-private" init --model openai/gpt-6.1-sol
+      - run: python3 scripts/jarvis.py --private-dir "$RUNNER_TEMP/jarvis-private" check
+      - run: python3 scripts/jarvis.py --private-dir "$RUNNER_TEMP/jarvis-private" install-codex
+      - run: python3 scripts/jarvis.py --private-dir "$RUNNER_TEMP/jarvis-private" check
+      - run: ./node_modules/.bin/openclaw config validate
+        env:
+          OPENCLAW_CONFIG_PATH: ${{ runner.temp }}/jarvis-private/openclaw.json
+          OPENCLAW_STATE_DIR: ${{ runner.temp }}/jarvis-private/state

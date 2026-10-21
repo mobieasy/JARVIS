@@ -1,7 +1,14 @@
 {
   "name": "jarvis-runtime",
   "private": true,
-  "dependencies": { "openclaw": "2026.10.4" },
+  "scripts": {
+    "jarvis": "python3 scripts/jarvis.py",
+    "test": "python3 -m unittest discover -s scripts -p 'test_*.py' -v && python3 -m unittest discover -s auth -p 'test_*.py' -v && python3 -m unittest discover -s tools -p 'test_*.py' -v && python3 -m unittest discover -s ops -p 'test_*.py' -v"
+  },
+  "dependencies": {
+    "@openclaw/codex": "2026.10.4",
+    "openclaw": "2026.10.4"
+  },
   "allowScripts": {
     "openclaw": true,
     "esbuild": true,

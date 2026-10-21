@@ -8,6 +8,7 @@ JARVIS aims to offer a self-hosted alternative for people who like the persisten
 
 ## What is here today
 
+- A private subscription-backed setup path using ChatGPT/Codex OAuth, a pinned official Codex harness, keyword memory, and strict launch checks. See [ChatGPT Plus setup](docs/SUBSCRIPTION-ASSISTANT.md). Live account and host acceptance are separate checks.
 - OpenClaw configuration template with explicit model choices, a Docker tool sandbox and Workboard task tracking.
 - Optional single-owner SMS login proxy: browser-bound one-time codes, persistent limits, revocable sessions, and HTTP/WebSocket forwarding. The current adapter targets APITXT and Indian mobile numbers.
 - An INR invoice CSV reconciliation tool with synthetic sample data and regression tests.
@@ -27,6 +28,10 @@ python -m unittest discover -s auth -p 'test_*.py' -v
 The sample is synthetic. Reports do not send reminders or execute payments.
 
 ## Start the assistant locally
+
+For **ChatGPT Plus/Codex subscription use with no paid API fallback**, follow [the subscription setup runbook](docs/SUBSCRIPTION-ASSISTANT.md). It creates fresh private state outside this repository, signs in directly with OpenAI, and reuses OpenClaw's dashboard, tasks and memory. Do not replace an existing deployment's configuration.
+
+The legacy example below uses **separately billed OpenRouter models**. It is retained for existing contributors and is not the subscription-only setup.
 
 Requires a compatible Linux environment, Node.js 24, npm 11 and Docker. The reference runtime is pinned to OpenClaw 2026.10.4; review upstream fixes before an internet-facing installation.
 
